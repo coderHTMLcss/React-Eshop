@@ -23,7 +23,8 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
     const [maxPrice, setMaxPrice] = useState<number | undefined>(undefined);
     const [keyword, setKeyword] = useState<string>('');
 
-    console.log(searchQuery);
+    console.log(selectedCategory);
+
 
     const handleResetFilters = () => {
         setSearchQuery('');

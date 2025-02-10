@@ -1,66 +1,42 @@
-import { useEffect, useState } from 'react';
 import { useFilter } from '../shared/FilterContext';
 import { Tally3 } from 'lucide-react';
-import { useDropdown } from './hooks/useDropdown';
-import axios from 'axios';
+import { useDropdown } from '../hooks/useDropdown';
+import { useFetchProduct } from '../hooks/useFetchProducts';
+import { useFilterProducts } from '../hooks/useFilterProducts';
+import ProductCard from './ProductCard';
+import Pagination from './Pagination';
+import { usePagination } from '../hooks/usePagination';
 
-const FILTER_OPTIONS = ['cheap', 'expensive', 'popular'];
-
+const FILTER_OPTIONS: string[] = ['cheap', 'expensive', 'popular'];
+export interface Product {
+    id: number;
+    title: string;
+    description: string;
+    price: number;
+    discountPercentage: number;
+    rating: number;
+    stock: number;
+    brand: string;
+    category: string;
+    thumbnail: string;
+    images: string[];
+};
 const MainContent = () => {
-    const {
-        searchQuery,
-        selectedCategory,
-        setSelectedCategory,
-        minPrice,
-        maxPrice,
-        keyword
-    } = useFilter();
+    const { keyword } = useFilter();
+    const { dropdownOpen, setDropdownOpen, toggleDropdown } = useDropdown();
+    const { currentPage,
+        handlePageChange,
+        paginationButtons,
+        startIndex,
+        itemsPerPage,
+        totalPages
+    } = usePagination();
+    const products: Product[] = useFetchProduct(keyword, startIndex, itemsPerPage);
 
-    const { dropdownOpen, setDropdownOpen } = useDropdown()
-
-    const [products, setProducts] = useState([]);
-    const [filter, setFilter] = useState<string>('all');
-    const [currentPage, setCurrentPage] = useState<number>(1);
-
-
-    const itemsPerPage = 12;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-
-    useEffect(() => {
-        const controller = new AbortController();
-
-        const fetchProducts = async () => {
-            try {
-                let url = `https://dummyjson.com/products?limit=${itemsPerPage}&skip=${startIndex}`;
-                if (keyword) {
-                    url = `https://dummyjson.com/products/search?q=${keyword}`;
-                }
-
-                const response = await axios.get(url, { signal: controller.signal });
-                setProducts(response.data.products);
-
-            } catch (error) {
-                if (axios.isCancel(error)) {
-                    console.log('The request has been cancelled:', error.message);
-                } else {
-                    console.error('Error downloading:', error);
-                }
-            }
-        };
-
-        fetchProducts();
-
-        return () => {
-            controller.abort();
-        };
-    }, [startIndex, keyword]);
-
-    const toggleDropdown = () => setDropdownOpen(prev => !prev);
-
-    const handleFilterChange = (filterType: string) => {
-        setFilter(filterType);
-        setDropdownOpen(false);
-    };
+    const { filter, handleFilterChange, filteredProducts } = useFilterProducts({
+        products,
+        callback: () => setDropdownOpen(false)
+    });
 
     return (
         <section className='xl:w-[55rem] lg:w-[55rem] sm:w-[40rem] xs:w-[20rem] p-5'>
@@ -91,13 +67,20 @@ const MainContent = () => {
                 </div>
 
                 <div className='grid grid-cols-4 sm:grid-cols-3 md:grid-cols-4 gap-5'>
-                    {/**BookCard */}
-                    {products.length > 0 && products.map((product) => {
-                        return <div className=''>
-                            <h1>{product.title}</h1>
-                        </div>
+                    {filteredProducts.length > 0 && filteredProducts.map((product) => {
+                        return <ProductCard
+                            key={product.id}
+                            product={product}
+                        />
                     })}
                 </div>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    buttons={paginationButtons}
+                />
             </div>
         </section>
     );

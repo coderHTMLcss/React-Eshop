@@ -14,5 +14,8 @@ export const useDropdown = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    return { dropdownOpen, setDropdownOpen }
+
+    const toggleDropdown = () => setDropdownOpen(prev => !prev);
+
+    return { dropdownOpen, setDropdownOpen, toggleDropdown }
 }

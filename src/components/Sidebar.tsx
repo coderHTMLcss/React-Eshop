@@ -10,7 +10,7 @@ interface FetchResponse {
     products: Product[];
 }
 
-const KEYWORDS = ['apple', 'watch', 'fashion', 'trend', 'shoes', 'shirt'];
+const KEYWORDS: string[] = ['apple', 'watch', 'fashion', 'trend', 'shoes', 'shirt'];
 
 const Sidebar = () => {
     const [categories, setCategories] = useState<string[]>([]);
@@ -54,17 +54,17 @@ const Sidebar = () => {
 
     return (
         <div className='w-64 p-5 h-screen'>
-            <h1 className='text-2xl font-bold mb-10 mt-4'>Online Store</h1>
+            <h1 className='text-2xl font-bold mb-5 mt-3'>Store</h1>
 
             <input
                 type='text'
-                className='border-2 rounded px-2 sm:mb-0 w-full'
+                className='border-2 rounded px-2 py-3 w-full sm:mb-0'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder='Search Product...'
             />
 
-            <div className='flex justify-center items-center mt-4'>
+            <div className='flex justify-center items-center mt-3'>
                 <input
                     type='number'
                     className='border-2 mr-2 px-2 py-1 w-full'
